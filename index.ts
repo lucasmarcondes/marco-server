@@ -36,7 +36,7 @@ app.use(passport.session())
 
 // import routes
 import routes from './routes'
-app.use(routes)
+app.use('/api', routes)
 
 const db = mongoose.connection
 db.on('error', console.error.bind(console, 'connection error:'))
