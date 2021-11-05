@@ -15,8 +15,12 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 	await check('email', 'Email is not valid').isEmail().run(req)
 	await check('password', 'Password must be at least 6 characters long').isLength({ min: 6 }).run(req)
 	await check('confirmPassword', 'Passwords do not match').equals(req.body.password).run(req)
+
 	await check('email', 'E-mail already in use')
-		.custom(email => User.findOne({ email }))
+		.custom(async email => {
+			const response = await User.findOne({ email })
+			return response !== null && Promise.reject()
+		})
 		.run(req)
 
 	const errors = validationResult(req)
