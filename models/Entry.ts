@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-
+import { Property } from './Template'
 export interface EntryDocument extends mongoose.Document {
 	_id: number
 	text?: string
@@ -8,7 +8,7 @@ export interface EntryDocument extends mongoose.Document {
 	lastModifiedDate?: Date
 	createdById: number
 	templateId: number
-	properties: Array<any>
+	properties: Array<Property>
 }
 
 const EntrySchema = new mongoose.Schema(

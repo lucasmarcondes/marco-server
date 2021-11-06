@@ -1,9 +1,21 @@
 import mongoose from 'mongoose'
 
+export interface Property {
+	_id: string
+	type: 'text' | 'checkbox' | 'number' | 'select'
+	subType?: string
+	description: string
+	default?: string | boolean | number | Array<string>
+	multipleValues?: boolean
+	showOnCard: boolean
+	options?: Array<string>
+	value?: string | boolean | number | Array<string>
+}
+
 export interface TemplateDocument extends mongoose.Document {
 	_id: number
-	description: String
-	properties: Array<any>
+	description: string
+	properties: Array<Property>
 	createdDate: Date
 	createdById: number
 	lastModifiedDate: Date
