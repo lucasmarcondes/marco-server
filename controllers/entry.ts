@@ -11,7 +11,9 @@ declare global {
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	if (req.user) {
-		Entry.find({ createdById: req.user.id })
+		Entry.find({
+			/*createdById: req.user.id*/
+		})
 			.sort({ createdDate: 'desc' })
 			.then(entries => res.json(entries))
 			.catch((err: any) => console.log(err))
