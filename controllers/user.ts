@@ -7,7 +7,15 @@ import { check, validationResult } from 'express-validator'
 import '../config/passport'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (req.user) res.json(req.user)
+	const userDto = {
+		_id: req.user._id,
+		firstName: req.user.firstName,
+		lastName: req.user.lastName,
+		email: req.user.email,
+		mobile: req.user.mobile,
+		createdDate: req.user.createdDate,
+	}
+	if (req.user) res.json(userDto)
 	else res.sendStatus(401)
 }
 
