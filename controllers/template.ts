@@ -12,10 +12,10 @@ export const list = async (req: Request, res: Response, next: NextFunction): Pro
 export const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	if (req.user) {
 		const newTemplate = new Template({
-			description: 'new template',
+			description: req.body.description,
 			createdDate: new Date(),
 			createdById: req.user.id,
-			properties: [],
+			properties: req.body.properties,
 			lastModifiedDate: new Date(),
 		})
 		newTemplate
