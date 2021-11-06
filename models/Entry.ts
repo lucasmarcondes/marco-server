@@ -15,8 +15,8 @@ const EntrySchema = new mongoose.Schema(
 	{
 		text: { type: String, required: true },
 		title: { type: String, required: true },
-		createdDate: { type: String, required: true },
-		lastModifiedDate: { type: String },
+		createdDate: { type: Date, required: true },
+		lastModifiedDate: { type: Date },
 		createdById: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 		templateId: { type: mongoose.Schema.Types.ObjectId, ref: 'Template', required: true },
 		properties: { type: [Object], required: true },
