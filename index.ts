@@ -2,7 +2,7 @@ import express from 'express'
 import session from 'express-session'
 import cors from 'cors'
 import passport from 'passport'
-import mongoose from 'mongoose'
+import { connect, connection } from 'mongoose'
 import MongoStore from 'connect-mongo'
 import env from 'dotenv'
 import './config/passport'
@@ -13,7 +13,7 @@ const app = express()
 env.config()
 
 // establish connection to MongoDB
-const cp = mongoose.connect(process.env.MONGO_URI!).then(m => m.connection.getClient())
+const cp = connect(process.env.MONGO_URI!).then(m => m.connection.getClient())
 
 //Middleware
 const corsOptions = {
@@ -43,7 +43,7 @@ app.use(passport.session())
 import routes from './routes'
 app.use('/api', routes)
 
-const db = mongoose.connection
+const db = connection
 db.on('error', console.error.bind(console, 'connection error:'))
 db.once('open', function () {
 	console.log('Connected to MongoDB')

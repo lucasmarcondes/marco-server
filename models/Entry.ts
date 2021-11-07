@@ -1,6 +1,6 @@
-import mongoose from 'mongoose'
+import { Document, Schema, model } from 'mongoose'
 import { Property } from './Template'
-export interface EntryDocument extends mongoose.Document {
+export interface EntryDocument extends Document {
 	_id: string
 	text?: string
 	title: string
@@ -11,17 +11,17 @@ export interface EntryDocument extends mongoose.Document {
 	properties: Array<Property>
 }
 
-const EntrySchema = new mongoose.Schema(
+const EntrySchema = new Schema(
 	{
 		text: { type: String, required: true },
 		title: { type: String, required: true },
 		createdDate: { type: Date, required: true },
 		lastModifiedDate: { type: Date },
-		createdById: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-		templateId: { type: mongoose.Schema.Types.ObjectId, ref: 'Template', required: true },
+		createdById: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+		templateId: { type: Schema.Types.ObjectId, ref: 'Template', required: true },
 		properties: { type: [Object], required: true },
 	},
 	{ collection: 'entries' }
 )
 
-export const Entry = mongoose.model<EntryDocument>('entry', EntrySchema)
+export const Entry = model<EntryDocument>('entry', EntrySchema)

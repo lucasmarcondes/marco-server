@@ -1,9 +1,9 @@
-import passport from 'passport'
-import { User, UserDocument } from '../models/User'
-import { ApiResponse } from 'types'
 import { Request, Response, NextFunction } from 'express'
-import { IVerifyOptions } from 'passport-local'
 import { Error as MongooseError } from 'mongoose'
+import { User, UserDocument } from '../models/User'
+import { ApiResponse } from 'routes'
+import passport from 'passport'
+import { IVerifyOptions } from 'passport-local'
 
 import '../config/passport'
 

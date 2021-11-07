@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+import { Document, Schema, model } from 'mongoose'
 
 export interface Property {
 	_id: string
@@ -12,7 +12,7 @@ export interface Property {
 	value?: string | boolean | number | Array<string>
 }
 
-export interface TemplateDocument extends mongoose.Document {
+export interface TemplateDocument extends Document {
 	_id: string
 	description: string
 	properties: Array<Property>
@@ -21,15 +21,15 @@ export interface TemplateDocument extends mongoose.Document {
 	lastModifiedDate: Date
 }
 
-const TemplateSchema = new mongoose.Schema(
+const TemplateSchema = new Schema(
 	{
 		description: { type: String, required: true },
 		properties: { type: [Object], required: true },
 		createdDate: { type: Date, required: true },
-		createdById: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+		createdById: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 		lastModifiedDate: { type: Date, required: true },
 	},
 	{ collection: 'templates' }
 )
 
-export const Template = mongoose.model<TemplateDocument>('template', TemplateSchema)
+export const Template = model<TemplateDocument>('template', TemplateSchema)

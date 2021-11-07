@@ -6,8 +6,13 @@ import * as userController from './controllers/user'
 import * as templateController from './controllers/template'
 import * as entryController from './controllers/entry'
 
+export interface ApiResponse {
+	message: string
+	result?: any
+}
+
 // default
-router.get('/', (req: Request, res: Response) => res.send('Welcome'))
+router.get('/', (req: Request, res: Response) => res.send('Mra'))
 
 // user
 router.post('/user', userController.create)

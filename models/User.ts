@@ -1,7 +1,7 @@
-import mongoose from 'mongoose'
+import { Document, Schema, model } from 'mongoose'
 import { randomBytes, scrypt, createHash } from 'crypto'
 
-export interface UserDocument extends mongoose.Document {
+export interface UserDocument extends Document {
 	_id: string
 	firstName: string
 	lastName: string
@@ -14,7 +14,7 @@ export interface UserDocument extends mongoose.Document {
 	gravatar: (size: number) => string
 }
 
-const userSchema = new mongoose.Schema<UserDocument>(
+const userSchema = new Schema<UserDocument>(
 	{
 		firstName: { type: String, required: true },
 		lastName: { type: String, required: true },
@@ -64,4 +64,4 @@ userSchema.methods.gravatar = function (size: number = 200) {
 	return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`
 }
 
-export const User = mongoose.model<UserDocument>('user', userSchema)
+export const User = model<UserDocument>('user', userSchema)

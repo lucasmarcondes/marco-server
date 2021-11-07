@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { Error as MongooseError } from 'mongoose'
 import { Template, TemplateDocument } from '../models/Template'
-import { ApiResponse } from '../types'
+import { ApiResponse } from 'routes'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	if (!req.user) {
