@@ -10,6 +10,7 @@ export interface UserDocument extends Document {
 	password?: string
 	mobile?: string
 	createdDate: Date
+	lastModifiedDate: Date
 	comparePassword: (candidatePassword: string, cb: (err: any, isMatch: any) => void) => void
 	gravatar: (size: number) => string
 }
@@ -23,6 +24,7 @@ const userSchema = new Schema<UserDocument>(
 		password: String,
 		mobile: String,
 		createdDate: { type: Date, required: true },
+		lastModifiedDate: { type: Date, required: true },
 	},
 	{ collection: 'users' }
 )

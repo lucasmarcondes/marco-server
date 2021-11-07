@@ -54,6 +54,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		email: email,
 		password: password,
 		createdDate: new Date(),
+		lastModifiedDate: new Date(),
 	})
 
 	// save user
@@ -78,6 +79,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 			return
 		}
 
+		user.lastModifiedDate = new Date()
 		if (firstName) user.firstName = firstName
 		if (lastName) user.lastName = lastName
 		if (mobile) user.mobile = mobile
