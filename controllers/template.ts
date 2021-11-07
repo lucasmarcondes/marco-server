@@ -1,22 +1,21 @@
 import { Request, Response, NextFunction } from 'express'
 import { Error as MongooseError } from 'mongoose'
 import { Template, TemplateDocument } from '../models/Template'
-import { ApiResponse } from 'routes'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	Template.find({ createdById: req.user._id })
 		.then((templates: Array<TemplateDocument>) => {
-			res.status(200).json({ message: 'Success', result: templates } as ApiResponse)
+			res.status(200).json(templates)
 		})
 		.catch(err => {
-			res.status(500).json({ message: 'There was an error returning templates' } as ApiResponse)
+			res.status(500).send('There was an error returning templates')
 			console.error(err)
 		})
 }
 
 export const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	if (!req.body.description || !req.body.properties) {
-		res.status(401).json({ message: 'Templates require a description and properties' } as ApiResponse)
+		res.status(401).send('Templates require a description and properties')
 		return
 	}
 
@@ -29,14 +28,9 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 	})
 	newTemplate
 		.save()
-		.then((template: TemplateDocument) =>
-			res.status(200).json({
-				message: 'Template created successfully',
-				result: template,
-			} as ApiResponse)
-		)
+		.then((template: TemplateDocument) => res.status(200).json(template))
 		.catch(err => {
-			res.status(500).json({ message: 'There was an error creating this template' } as ApiResponse)
+			res.status(500).send('There was an error creating this template')
 			console.error(err)
 		})
 }
@@ -44,7 +38,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 export const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	Template.findOne({ _id: req.params.id, createdById: req.user._id }, (err: MongooseError, template: TemplateDocument) => {
 		if (err) {
-			res.status(500).json({ message: 'There was an error updating this template' } as ApiResponse)
+			res.status(500).send('There was an error updating this template')
 			console.error(err)
 		}
 		if (template) {
@@ -54,9 +48,9 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 			template.lastModifiedDate = new Date()
 			template.save()
 
-			res.status(200).json({ message: 'Template updated successfully', result: template } as ApiResponse)
+			res.status(200).json(template)
 		} else {
-			res.status(404).json({ message: 'Template not found' } as ApiResponse)
+			res.status(204).send('Template not found')
 		}
 	})
 }
@@ -65,13 +59,13 @@ export const remove = async (req: Request, res: Response, next: NextFunction): P
 	Template.deleteOne({ _id: req.params.id, createdById: req.user._id })
 		.then(response => {
 			if (response.deletedCount !== 0) {
-				res.status(200).json({ message: 'Template deleted successfully' } as ApiResponse)
+				res.sendStatus(200)
 			} else {
-				res.status(404).json({ message: 'Template not found' } as ApiResponse)
+				res.status(204).send('Template not found')
 			}
 		})
 		.catch(err => {
-			res.status(500).json({ message: 'There was an error deleting this template' } as ApiResponse)
+			res.status(500).send('There was an error deleting this template')
 			console.error(err)
 		})
 }

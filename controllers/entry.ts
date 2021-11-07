@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { Error as MongooseError } from 'mongoose'
 import { Entry, EntryDocument } from '../models/Entry'
-import { ApiResponse } from 'routes'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	Entry.find({
@@ -9,10 +8,10 @@ export const list = async (req: Request, res: Response, next: NextFunction): Pro
 	})
 		.sort({ createdDate: 'desc' })
 		.then((entries: Array<EntryDocument>) => {
-			res.status(200).json({ message: 'Success', result: entries } as ApiResponse)
+			res.status(200).json(entries)
 		})
 		.catch(err => {
-			res.status(500).json({ message: 'There was an error returning entries' } as ApiResponse)
+			res.status(500).send('There was an error returning entries')
 			console.error(err)
 		})
 }
@@ -29,14 +28,9 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 	})
 	newEntry
 		.save()
-		.then((entry: EntryDocument) =>
-			res.status(200).json({
-				message: 'Template created successfully',
-				result: entry,
-			} as ApiResponse)
-		)
+		.then((entry: EntryDocument) => res.status(200).json(entry))
 		.catch(err => {
-			res.status(500).json({ message: 'There was an error creating this entry' } as ApiResponse)
+			res.status(500).send('There was an error creating this entry')
 			console.error(err)
 		})
 }
@@ -44,7 +38,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 export const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	Entry.findOne({ _id: req.params.id, createdById: req.user._id }, (err: MongooseError, entry: EntryDocument) => {
 		if (err) {
-			res.status(500).json({ message: 'There was an error updating this entry' } as ApiResponse)
+			res.status(500).send('There was an error updating this entry')
 			console.error(err)
 		}
 
@@ -56,9 +50,9 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 			entry.lastModifiedDate = new Date()
 			entry.save()
 
-			res.status(200).json({ message: 'Entry updated successfully', result: entry } as ApiResponse)
+			res.status(200).json(entry)
 		} else {
-			res.status(404).json({ message: 'Entry not found' } as ApiResponse)
+			res.status(204).send('Entry not found')
 		}
 	})
 }
@@ -67,13 +61,13 @@ export const remove = async (req: Request, res: Response, next: NextFunction): P
 	Entry.deleteOne({ _id: req.params.id, createdById: req.user._id })
 		.then(response => {
 			if (response.deletedCount !== 0) {
-				res.status(200).json({ message: 'Entry deleted successfully' } as ApiResponse)
+				res.sendStatus(200)
 			} else {
-				res.status(404).json({ message: 'Entry not found' } as ApiResponse)
+				res.status(204).send('Entry not found')
 			}
 		})
 		.catch(err => {
-			res.status(500).json({ message: 'There was an error deleting this entry' } as ApiResponse)
+			res.status(500).send('There was an error deleting this entry')
 			console.error(err)
 		})
 }

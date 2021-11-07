@@ -3,7 +3,6 @@ import { Strategy as LocalStrategy } from 'passport-local'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 
 import { UserDocument, User } from '../models/User'
-import { ApiResponse } from 'routes'
 import { Request, Response, NextFunction } from 'express'
 import { NativeError } from 'mongoose'
 
@@ -64,5 +63,5 @@ passport.use(
 )
 
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-	req.isAuthenticated() ? next() : res.status(401).json({ message: 'User not logged in' } as ApiResponse)
+	req.isAuthenticated() ? next() : res.status(401).send('User not logged in')
 }
