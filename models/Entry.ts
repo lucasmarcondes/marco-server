@@ -1,13 +1,13 @@
 import mongoose from 'mongoose'
 import { Property } from './Template'
 export interface EntryDocument extends mongoose.Document {
-	_id: number
+	_id: string
 	text?: string
 	title: string
 	createdDate: Date
 	lastModifiedDate?: Date
-	createdById: number
-	templateId: number
+	createdById: string
+	templateId: string
 	properties: Array<Property>
 }
 

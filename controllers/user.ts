@@ -7,6 +7,12 @@ import { Error as MongooseError } from 'mongoose'
 
 import '../config/passport'
 
+declare global {
+	namespace Express {
+		interface User extends UserDocument {}
+	}
+}
+
 const userDto = (user: UserDocument) => {
 	return {
 		_id: user.id,
@@ -23,11 +29,7 @@ export const list = async (req: Request, res: Response, next: NextFunction): Pro
 		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
 		return
 	}
-
-	res.status(200).json({
-		message: 'Success',
-		result: req.user,
-	})
+	res.status(200).json({ message: 'Success', result: userDto(req.user) })
 }
 
 export const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -132,9 +134,16 @@ export const remove = async (req: Request, res: Response, next: NextFunction): P
 		return
 	}
 
-	User.deleteOne({ _id: req.user._id }).then(() => {
-		res.status(200).json({ message: 'Account deleted successfully' } as ApiResponse)
-	})
+	User.findByIdAndDelete(req.user._id)
+		.then(() =>
+			res.status(200).json({
+				message: 'Account deleted successfully',
+			} as ApiResponse)
+		)
+		.catch(err => {
+			res.status(500).json({ message: 'There was an error deleting your Account' } as ApiResponse)
+			console.error(err)
+		})
 }
 
 export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -160,7 +169,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 				console.error(err)
 				return
 			}
-			return res.json({ message: 'Login successful' })
+			return res.status(200).json({ message: 'Login successful' } as ApiResponse)
 		})
 	})(req, res, next)
 }

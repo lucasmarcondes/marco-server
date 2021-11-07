@@ -13,11 +13,11 @@ export interface Property {
 }
 
 export interface TemplateDocument extends mongoose.Document {
-	_id: number
+	_id: string
 	description: string
 	properties: Array<Property>
 	createdDate: Date
-	createdById: number
+	createdById: string
 	lastModifiedDate: Date
 }
 

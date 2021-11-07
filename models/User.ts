@@ -2,7 +2,7 @@ import mongoose from 'mongoose'
 import { randomBytes, scrypt, createHash } from 'crypto'
 
 export interface UserDocument extends mongoose.Document {
-	_id: number
+	_id: string
 	firstName: string
 	lastName: string
 	email: string
