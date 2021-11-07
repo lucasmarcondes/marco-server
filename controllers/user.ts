@@ -25,10 +25,6 @@ const userDto = (user: UserDocument) => {
 }
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (!req.user) {
-		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
-		return
-	}
 	res.status(200).json({ message: 'Success', result: userDto(req.user) })
 }
 
@@ -74,11 +70,6 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 }
 
 export const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (!req.user) {
-		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
-		return
-	}
-
 	const { firstName, lastName, mobile, email, previousPassword, newPassword } = req.body
 
 	User.findById(req.user._id, (err: MongooseError, user: UserDocument) => {
@@ -129,11 +120,6 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 }
 
 export const remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (!req.user) {
-		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
-		return
-	}
-
 	User.findByIdAndDelete(req.user._id)
 		.then(() =>
 			res.status(200).json({
@@ -189,4 +175,5 @@ export const googleRedirect = async (req: Request, res: Response, next: NextFunc
 
 export const logout = (req: Request, res: Response): void => {
 	req.logout()
+	res.status(200).json({ message: 'Logout successful' } as ApiResponse)
 }

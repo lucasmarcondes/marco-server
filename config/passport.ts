@@ -3,6 +3,7 @@ import { Strategy as LocalStrategy } from 'passport-local'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 
 import { UserDocument, User } from '../models/User'
+import { ApiResponse } from 'routes'
 import { Request, Response, NextFunction } from 'express'
 import { NativeError } from 'mongoose'
 
@@ -50,19 +51,12 @@ passport.use(
 passport.use(
 	new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
 		User.findOne({ email: email.toLowerCase() }, (err: NativeError, user: UserDocument) => {
-			if (err) {
-				return done(err)
-			}
-			if (!user) {
-				return done(undefined, false, { message: `Email ${email} not found.` })
-			}
+			if (err) return done(err)
+			if (!user) return done(undefined, false, { message: `Email '${email}'' not found.` })
+
 			user.comparePassword(password, (err: Error, isMatch: boolean) => {
-				if (err) {
-					return done(err)
-				}
-				if (isMatch) {
-					return done(undefined, user)
-				}
+				if (err) return done(err)
+				if (isMatch) return done(undefined, user)
 				return done(undefined, false, { message: 'Invalid email or password.' })
 			})
 		})
@@ -70,7 +64,5 @@ passport.use(
 )
 
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-	if (req.isAuthenticated()) {
-		return next()
-	}
+	req.isAuthenticated() ? next() : res.status(401).json({ message: 'User not logged in' } as ApiResponse)
 }

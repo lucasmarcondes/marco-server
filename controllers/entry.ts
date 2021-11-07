@@ -4,10 +4,6 @@ import { Entry, EntryDocument } from '../models/Entry'
 import { ApiResponse } from 'routes'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (!req.user) {
-		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
-		return
-	}
 	Entry.find({
 		/*createdById: req.user._id*/
 	})
@@ -22,10 +18,6 @@ export const list = async (req: Request, res: Response, next: NextFunction): Pro
 }
 
 export const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (!req.user) {
-		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
-		return
-	}
 	const newEntry = new Entry({
 		text: req.body.text,
 		title: req.body.title,
@@ -50,11 +42,6 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 }
 
 export const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (!req.user) {
-		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
-		return
-	}
-
 	Entry.findOne({ _id: req.params.id, createdById: req.user._id }, (err: MongooseError, entry: EntryDocument) => {
 		if (err) {
 			res.status(500).json({ message: 'There was an error updating this entry' } as ApiResponse)
@@ -77,11 +64,6 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 }
 
 export const remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (!req.user) {
-		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
-		return
-	}
-
 	Entry.deleteOne({ _id: req.params.id, createdById: req.user._id })
 		.then(response => {
 			if (response.deletedCount !== 0) {

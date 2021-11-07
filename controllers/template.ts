@@ -4,10 +4,6 @@ import { Template, TemplateDocument } from '../models/Template'
 import { ApiResponse } from 'routes'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (!req.user) {
-		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
-		return
-	}
 	Template.find({ createdById: req.user._id })
 		.then((templates: Array<TemplateDocument>) => {
 			res.status(200).json({ message: 'Success', result: templates } as ApiResponse)
@@ -19,11 +15,6 @@ export const list = async (req: Request, res: Response, next: NextFunction): Pro
 }
 
 export const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (!req.user) {
-		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
-		return
-	}
-
 	if (!req.body.description || !req.body.properties) {
 		res.status(401).json({ message: 'Templates require a description and properties' } as ApiResponse)
 		return
@@ -51,11 +42,6 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 }
 
 export const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (!req.user) {
-		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
-		return
-	}
-
 	Template.findOne({ _id: req.params.id, createdById: req.user._id }, (err: MongooseError, template: TemplateDocument) => {
 		if (err) {
 			res.status(500).json({ message: 'There was an error updating this template' } as ApiResponse)
@@ -76,11 +62,6 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 }
 
 export const remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (!req.user) {
-		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
-		return
-	}
-
 	Template.deleteOne({ _id: req.params.id, createdById: req.user._id })
 		.then(response => {
 			if (response.deletedCount !== 0) {
