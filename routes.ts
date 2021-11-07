@@ -12,7 +12,7 @@ export interface ApiResponse {
 }
 
 // default
-router.get('/', (req: Request, res: Response) => res.send('Mra'))
+router.get('/', (req: Request, res: Response) => res.send('Marco API'))
 
 // user
 router.post('/user', userController.create)
@@ -21,7 +21,7 @@ router.put('/user', isAuthenticated, userController.update)
 router.delete('/user', isAuthenticated, userController.remove)
 
 router.post('/user/login', userController.login)
-router.get('/user/logout', isAuthenticated, userController.logout)
+router.post('/user/logout', isAuthenticated, userController.logout)
 router.get('/user/login/google', userController.googleLogin)
 router.get('/user/login/google/redirect', userController.googleRedirect)
 
