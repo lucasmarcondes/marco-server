@@ -1,44 +1,55 @@
 import passport from 'passport'
 import { User, UserDocument } from '../models/User'
+import { ApiResponse } from 'types'
 import { Request, Response, NextFunction } from 'express'
 import { IVerifyOptions } from 'passport-local'
-import { check, validationResult } from 'express-validator'
+import { Error as MongooseError } from 'mongoose'
 
 import '../config/passport'
 
-export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	const userDto = {
-		_id: req.user._id,
-		firstName: req.user.firstName,
-		lastName: req.user.lastName,
-		email: req.user.email,
-		mobile: req.user.mobile,
-		createdDate: req.user.createdDate,
+const userDto = (user: UserDocument) => {
+	return {
+		_id: user.id,
+		firstName: user.firstName,
+		lastName: user.lastName,
+		email: user.email,
+		mobile: user.mobile,
+		createdDate: user.createdDate,
 	}
-	if (req.user) res.json(userDto)
-	else res.sendStatus(401)
 }
 
-export const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	await check('email', 'Email is not valid').isEmail().run(req)
-	await check('password', 'Password must be at least 6 characters long').isLength({ min: 6 }).run(req)
-	await check('confirmPassword', 'Passwords do not match').equals(req.body.password).run(req)
-
-	await check('email', 'E-mail already in use')
-		.custom(async email => {
-			const response = await User.findOne({ email })
-			return response !== null && Promise.reject()
-		})
-		.run(req)
-
-	const errors = validationResult(req)
-
-	if (!errors.isEmpty()) {
-		res.status(400).send(errors.array().map(error => ({ msg: error.msg })))
+export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+	if (!req.user) {
+		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
 		return
 	}
 
-	const { firstName, lastName, email, password } = req.body
+	res.status(200).json({
+		message: 'Success',
+		result: req.user,
+	})
+}
+
+export const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+	const { firstName, lastName, email, password, confirmPassword } = req.body
+	if (!firstName || !lastName || !email || !password || !confirmPassword) {
+		res.status(400).json({ message: 'Please fill out all fields' } as ApiResponse)
+		return
+	}
+	if (password != confirmPassword) {
+		res.status(400).json({ message: 'Passwords must match' } as ApiResponse)
+		return
+	}
+	if (password.length < 6) {
+		res.status(400).json({ message: 'Password should be atleast 6 characters in length' } as ApiResponse)
+		return
+	}
+
+	const response = await User.find({ email })
+	if (response.length) {
+		res.status(400).json({ message: 'Email is already in use' } as ApiResponse)
+		return
+	}
 
 	const newUser: UserDocument = new User({
 		firstName: firstName,
@@ -52,50 +63,104 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 	newUser
 		.save()
 		.then(() => {
-			res.status(201).send({ msg: 'Account created successfully' })
+			res.status(201).json({ message: 'Account created successfully' } as ApiResponse)
 		})
-		.catch((err: any) => console.log(err))
+		.catch((err: MongooseError) => {
+			res.status(500).json({ message: 'There was an error with your request' } as ApiResponse)
+			console.error(err)
+		})
 }
 
 export const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (req.user) {
-		//update
-	} else {
-		res.sendStatus(401)
+	if (!req.user) {
+		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
+		return
 	}
+
+	const { firstName, lastName, mobile, email, previousPassword, newPassword } = req.body
+
+	User.findById(req.user._id, (err: MongooseError, user: UserDocument) => {
+		if (err) {
+			res.status(401).json({ message: 'There was an error updating your account' } as ApiResponse)
+			console.error(err)
+			return
+		}
+
+		if (firstName) user.firstName = firstName
+		if (lastName) user.lastName = lastName
+		if (mobile) user.mobile = mobile
+		if (email) user.email = email
+
+		if ((previousPassword && !newPassword) || (!previousPassword && newPassword)) {
+			res.status(400).json({ message: 'Both password fields must be filled out to update password' } as ApiResponse)
+			return
+		}
+
+		if (newPassword && newPassword.length < 6) {
+			res.status(400).json({ message: 'Password should be atleast 6 characters in length' } as ApiResponse)
+			return
+		}
+		if (previousPassword && newPassword) {
+			user.comparePassword(previousPassword, (err: Error, isMatch: boolean) => {
+				if (err) {
+					res.status(500).json({ message: 'There was an error validating passwords' } as ApiResponse)
+					console.error(err)
+				} else if (!isMatch) {
+					res.status(400).json({ message: 'Current password is incorrect' } as ApiResponse)
+				} else {
+					user.password = newPassword
+					user.save()
+					res.status(200).json({
+						message: 'Account updated successfully',
+						result: userDto(user),
+					} as ApiResponse)
+				}
+			})
+		} else {
+			user.save()
+			res.status(200).json({
+				message: 'Account updated successfully',
+				result: userDto(user),
+			} as ApiResponse)
+		}
+	})
 }
 
 export const remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	if (req.user) {
-		//delete
-	} else {
-		res.sendStatus(401)
+	if (!req.user) {
+		res.status(401).json({ message: 'User not logged in' } as ApiResponse)
+		return
 	}
+
+	User.deleteOne({ _id: req.user._id }).then(() => {
+		res.status(200).json({ message: 'Account deleted successfully' } as ApiResponse)
+	})
 }
 
 export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	await check('email', 'Email is not valid').isEmail().run(req)
-	await check('password', 'Password cannot be blank').isLength({ min: 1 }).run(req)
-
-	const errors = validationResult(req)
-
-	if (!errors.isEmpty()) {
-		res.status(400).send(errors.array().map(error => ({ msg: error.msg })))
+	if (!req.body.email || !req.body.password) {
+		res.status(400).json({ message: 'Both fields must be filled' } as ApiResponse)
 		return
 	}
 
 	passport.authenticate('local', (err: any, user: UserDocument, info: IVerifyOptions) => {
 		if (err) {
-			return next(err)
+			res.status(500).json({ message: 'There was an error authenticating your account' } as ApiResponse)
+			console.error(err)
+			return
 		}
 		if (!user) {
-			return res.status(403).send(info)
+			res.status(500).json(info as ApiResponse)
+			console.error(err)
+			return
 		}
 		req.logIn(user, err => {
 			if (err) {
-				return next(err)
+				res.status(500).json({ message: 'There was an error logging in' } as ApiResponse)
+				console.error(err)
+				return
 			}
-			return res.json({ msg: 'Welcome, ' + user.firstName })
+			return res.json({ message: 'Login successful' })
 		})
 	})(req, res, next)
 }
