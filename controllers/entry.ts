@@ -72,7 +72,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 
 			res.status(200).json({ message: 'Entry updated successfully', result: entry } as ApiResponse)
 		} else {
-			res.status(200).json({ message: 'Entry not found' } as ApiResponse)
+			res.status(404).json({ message: 'Entry not found' } as ApiResponse)
 		}
 	})
 }
@@ -88,7 +88,7 @@ export const remove = async (req: Request, res: Response, next: NextFunction): P
 			if (response.deletedCount !== 0) {
 				res.status(200).json({ message: 'Entry deleted successfully' } as ApiResponse)
 			} else {
-				res.status(200).json({ message: 'Entry not found' } as ApiResponse)
+				res.status(404).json({ message: 'Entry not found' } as ApiResponse)
 			}
 		})
 		.catch(err => {
