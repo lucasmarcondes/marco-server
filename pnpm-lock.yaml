@@ -13,7 +13,7 @@ specifiers:
   express: ^4.17.1
   express-session: ^1.17.2
   express-validator: ^6.13.0
-  mongodb: ^4.1.3
+  mongodb: ^4.1.4
   mongoose: ^6.0.12
   passport: ^0.5.0
   passport-google-oauth20: ^2.0.0
@@ -22,13 +22,13 @@ specifiers:
   typescript: ^4.4.4
 
 dependencies:
-  connect-mongo: 4.6.0_mongodb@4.1.3
+  connect-mongo: 4.6.0_mongodb@4.1.4
   cors: 2.8.5
   dotenv: 10.0.0
   express: 4.17.1
   express-session: 1.17.2
   express-validator: 6.13.0
-  mongodb: 4.1.3
+  mongodb: 4.1.4
   mongoose: 6.0.12
   passport: 0.5.0
   passport-google-oauth20: 2.0.0
@@ -297,7 +297,7 @@ packages:
     resolution: {integrity: sha1-2Klr13/Wjfd5OnMDajug1UBdR3s=}
     dev: true
 
-  /connect-mongo/4.6.0_mongodb@4.1.3:
+  /connect-mongo/4.6.0_mongodb@4.1.4:
     resolution: {integrity: sha512-8new4Z7NLP3CGP65Aw6ls3xDBeKVvHRSh39CXuDZTQsvpeeU9oNMzfFgvqmHqZ6gWpxIl663RyoVEmCAGf1yOg==}
     engines: {node: '>=10'}
     peerDependencies:
@@ -305,7 +305,7 @@ packages:
     dependencies:
       debug: 4.3.2
       kruptein: 3.0.3
-      mongodb: 4.1.3
+      mongodb: 4.1.4
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -715,6 +715,17 @@ packages:
 
   /mongodb/4.1.3:
     resolution: {integrity: sha512-lHvTqODBiSpuqjpCj48DOyYWS6Iq6ElJNUiH9HWdQtONyOfjgsKzJULipWduMGsSzaNO4nFi/kmlMFCLvjox/Q==}
+    engines: {node: '>=12.9.0'}
+    dependencies:
+      bson: 4.5.4
+      denque: 2.0.1
+      mongodb-connection-string-url: 2.1.0
+    optionalDependencies:
+      saslprep: 1.0.3
+    dev: false
+
+  /mongodb/4.1.4:
+    resolution: {integrity: sha512-Cv/sk8on/tpvvqbEvR1h03mdyNdyvvO+WhtFlL4jrZ+DSsN/oSQHVqmJQI/sBCqqbOArFcYCAYDfyzqFwV4GSQ==}
     engines: {node: '>=12.9.0'}
     dependencies:
       bson: 4.5.4

@@ -13,7 +13,7 @@ const app = express()
 env.config()
 
 // establish connection to MongoDB
-const cp = connect(process.env.MONGO_URI!).then(m => m.connection.getClient())
+const clientPromise: any = connect(process.env.MONGO_URI!).then(m => m.connection.getClient())
 
 //Middleware
 const corsOptions = {
@@ -32,7 +32,7 @@ app.use(
 		},
 		saveUninitialized: false,
 		resave: false,
-		store: MongoStore.create({ clientPromise: cp }),
+		store: MongoStore.create({ clientPromise }),
 	})
 )
 
