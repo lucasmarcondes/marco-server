@@ -16,7 +16,7 @@ router.put('/user', isAuthenticated, userController.update)
 router.delete('/user', isAuthenticated, userController.remove)
 
 router.post('/user/login', userController.login)
-router.post('/user/logout', isAuthenticated, userController.logout)
+router.post('/user/logout', userController.logout)
 router.get('/user/login/google', userController.googleLogin)
 router.get('/user/login/google/redirect', userController.googleRedirect)
 
