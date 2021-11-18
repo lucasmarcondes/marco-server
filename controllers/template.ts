@@ -50,7 +50,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 
 			res.status(200).json(template)
 		} else {
-			res.status(204).send('Template not found')
+			res.status(404).send('Template not found')
 		}
 	})
 }
@@ -61,7 +61,7 @@ export const remove = async (req: Request, res: Response, next: NextFunction): P
 			if (response.deletedCount !== 0) {
 				res.sendStatus(200)
 			} else {
-				res.status(204).send('Template not found')
+				res.status(404).send('Template not found')
 			}
 		})
 		.catch(err => {

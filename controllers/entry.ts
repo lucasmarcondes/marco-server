@@ -3,9 +3,7 @@ import { Error as MongooseError } from 'mongoose'
 import { Entry, EntryDocument } from '../models/Entry'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	Entry.find({
-		/*createdById: req.user._id*/
-	})
+	Entry.find({ createdById: req.user._id })
 		.sort({ createdDate: 'desc' })
 		.then((entries: Array<EntryDocument>) => {
 			res.status(200).json(entries)
@@ -52,7 +50,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 
 			res.status(200).json(entry)
 		} else {
-			res.status(204).send('Entry not found')
+			res.status(404).send('Entry not found')
 		}
 	})
 }
@@ -63,7 +61,7 @@ export const remove = async (req: Request, res: Response, next: NextFunction): P
 			if (response.deletedCount !== 0) {
 				res.sendStatus(200)
 			} else {
-				res.status(204).send('Entry not found')
+				res.status(404).send('Entry not found')
 			}
 		})
 		.catch(err => {

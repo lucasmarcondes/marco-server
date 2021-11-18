@@ -8,7 +8,7 @@ export interface EntryDocument extends Document {
 	lastModifiedDate: Date
 	createdById: string
 	templateId: string
-	properties: Array<Property>
+	properties?: Property[]
 }
 
 const EntrySchema = new Schema(
@@ -19,7 +19,7 @@ const EntrySchema = new Schema(
 		lastModifiedDate: { type: Date, required: true },
 		createdById: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 		templateId: { type: Schema.Types.ObjectId, ref: 'Template', required: true },
-		properties: { type: [Object], required: true },
+		properties: { type: [Object] },
 	},
 	{ collection: 'entries' }
 )

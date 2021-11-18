@@ -56,4 +56,4 @@ if (require.main === module) {
 	})
 }
 
-export default (req: any, res: any) => app
+export default (req: Request, res: Response) => app
