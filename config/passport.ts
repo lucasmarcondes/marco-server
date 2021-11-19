@@ -51,17 +51,17 @@ passport.use(
 	new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
 		User.findOne({ email: email.toLowerCase() }, (err: NativeError, user: UserDocument) => {
 			if (err) return done(err)
-			if (!user) return done(undefined, false, { message: `Email '${email}'' not found.` })
+			if (!user) return done(undefined, false, { message: `Email '${email}' not found` })
 
 			user.comparePassword(password, (err: Error, isMatch: boolean) => {
 				if (err) return done(err)
 				if (isMatch) return done(undefined, user)
-				return done(undefined, false, { message: 'Invalid email or password.' })
+				return done(undefined, false, { message: 'Wrong password' })
 			})
 		})
 	})
 )
 
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-	req.isAuthenticated() ? next() : res.status(401).send('User not logged in')
+	req.isAuthenticated() ? next() : res.status(401).json('Are you logged in?')
 }

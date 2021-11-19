@@ -30,21 +30,21 @@ export const list = async (req: Request, res: Response, next: NextFunction): Pro
 export const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	const { firstName, lastName, email, password, confirmPassword } = req.body
 	if (!firstName || !lastName || !email || !password || !confirmPassword) {
-		res.status(400).send('Please fill out all fields')
+		res.status(400).json('Please fill out all fields')
 		return
 	}
 	if (password != confirmPassword) {
-		res.status(400).send('Passwords must match')
+		res.status(400).json('Passwords must match')
 		return
 	}
 	if (password.length < 6) {
-		res.status(400).send('Password should be atleast 6 characters in length')
+		res.status(400).json('Password should be atleast 6 characters in length')
 		return
 	}
 
 	const response = await User.find({ email })
 	if (response.length) {
-		res.status(400).send('Email is already in use')
+		res.status(400).json('Email is already in use')
 		return
 	}
 
@@ -64,7 +64,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 			res.sendStatus(201)
 		})
 		.catch((err: MongooseError) => {
-			res.status(500).send('There was an error with your request')
+			res.status(500).json('There was an error with your request')
 			console.error(err)
 		})
 }
@@ -74,7 +74,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 
 	User.findById(req.user._id, (err: MongooseError, user: UserDocument) => {
 		if (err) {
-			res.status(401).send('There was an error updating your account')
+			res.status(401).json('There was an error updating your account')
 			console.error(err)
 			return
 		}
@@ -86,21 +86,21 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 		if (email) user.email = email
 
 		if ((previousPassword && !newPassword) || (!previousPassword && newPassword)) {
-			res.status(400).send('Both password fields must be filled out to update password')
+			res.status(400).json('Both password fields must be filled out to update password')
 			return
 		}
 
 		if (newPassword && newPassword.length < 6) {
-			res.status(400).send('Password should be atleast 6 characters in length')
+			res.status(400).json('Password should be atleast 6 characters in length')
 			return
 		}
 		if (previousPassword && newPassword) {
 			user.comparePassword(previousPassword, (err: Error, isMatch: boolean) => {
 				if (err) {
-					res.status(500).send('There was an error validating passwords')
+					res.status(500).json('There was an error validating passwords')
 					console.error(err)
 				} else if (!isMatch) {
-					res.status(400).send('Current password is incorrect')
+					res.status(400).json('Current password is incorrect')
 				} else {
 					user.password = newPassword
 					user.save()
@@ -118,35 +118,35 @@ export const remove = async (req: Request, res: Response, next: NextFunction): P
 	User.findByIdAndDelete(req.user._id)
 		.then(() => res.sendStatus(200))
 		.catch(err => {
-			res.status(500).send('There was an error deleting your Account')
+			res.status(500).json('There was an error deleting your Account')
 			console.error(err)
 		})
 }
 
 export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	if (!req.body.email || !req.body.password) {
-		res.status(400).send('Both fields must be filled')
+		res.status(400).json('Both fields must be filled')
 		return
 	}
 
 	passport.authenticate('local', (err: any, user: UserDocument, info: IVerifyOptions) => {
 		if (err) {
-			res.status(500).send('There was an error authenticating your account')
+			res.status(500).json('There was an error authenticating your account')
 			console.error(err)
 			return
 		}
 		if (!user) {
-			res.status(500).send(info.message)
+			res.status(401).json(info.message)
 			console.error(err)
 			return
 		}
 		req.logIn(user, err => {
 			if (err) {
-				res.status(500).send('There was an error logging in')
+				res.status(500).json('There was an error logging in')
 				console.error(err)
 				return
 			}
-			return res.sendStatus(200)
+			return res.status(200).json('Welcome, ' + user.firstName)
 		})
 	})(req, res, next)
 }
