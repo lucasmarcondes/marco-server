@@ -116,7 +116,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 
 export const remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	User.findByIdAndDelete(req.user._id)
-		.then(() => res.sendStatus(200))
+		.then(() => res.status(200).json('User deleted successfully'))
 		.catch(err => {
 			res.status(500).json('There was an error deleting your Account')
 			console.error(err)
@@ -166,5 +166,5 @@ export const googleRedirect = async (req: Request, res: Response, next: NextFunc
 
 export const logout = (req: Request, res: Response): void => {
 	req.logout()
-	res.sendStatus(200)
+	res.send(200).json('Logged out successfully')
 }

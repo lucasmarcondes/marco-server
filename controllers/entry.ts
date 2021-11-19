@@ -9,7 +9,7 @@ export const list = async (req: Request, res: Response, next: NextFunction): Pro
 			res.status(200).json(entries)
 		})
 		.catch(err => {
-			res.status(500).send('There was an error returning entries')
+			res.status(500).json('There was an error returning entries')
 			console.error(err)
 		})
 }
@@ -28,7 +28,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		.save()
 		.then((entry: EntryDocument) => res.status(200).json(entry))
 		.catch(err => {
-			res.status(500).send('There was an error creating this entry')
+			res.status(500).json('There was an error creating this entry')
 			console.error(err)
 		})
 }
@@ -36,7 +36,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 export const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	Entry.findOne({ _id: req.params.id, createdById: req.user._id }, (err: MongooseError, entry: EntryDocument) => {
 		if (err) {
-			res.status(500).send('There was an error updating this entry')
+			res.status(500).json('There was an error updating this entry')
 			console.error(err)
 		}
 
@@ -50,7 +50,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 
 			res.status(200).json(entry)
 		} else {
-			res.status(404).send('Entry not found')
+			res.status(404).json('Entry not found')
 		}
 	})
 }
@@ -59,13 +59,13 @@ export const remove = async (req: Request, res: Response, next: NextFunction): P
 	Entry.deleteOne({ _id: req.params.id, createdById: req.user._id })
 		.then(response => {
 			if (response.deletedCount !== 0) {
-				res.sendStatus(200)
+				res.status(200).json('Entry deleted successfuly')
 			} else {
-				res.status(404).send('Entry not found')
+				res.status(404).json('Entry not found')
 			}
 		})
 		.catch(err => {
-			res.status(500).send('There was an error deleting this entry')
+			res.status(500).json('There was an error deleting this entry')
 			console.error(err)
 		})
 }
