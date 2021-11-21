@@ -5,9 +5,10 @@ import passport from 'passport'
 import { IVerifyOptions } from 'passport-local'
 import { validateNewUser } from '../services/user'
 import { IUserDocument } from '../types'
-import { success, error } from '../utils/api'
+import { createUser } from '../DAL/user'
 
-import '../config/passport'
+import '../helpers/authenticate'
+import { AppError, AppResponse } from '../helpers/response'
 
 declare global {
 	namespace Express {
@@ -41,21 +42,15 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		lastModifiedDate: new Date(),
 		preferences: {},
 	})
-	try {
-		const response = await validateNewUser(newUser, req.body.confirmPassword)
 
-		// save user
-		newUser
-			.save()
-			.then(() => {
-				res.status(response.code).json(response.result)
-			})
-			.catch((err: MongooseError) => {
-				res.status(500).json(err.message)
-				console.error(err)
-			})
+	try {
+		const validUser = await validateNewUser(newUser, req.body.confirmPassword)
+		if (validUser) {
+			const resp = await createUser(newUser)
+			res.status(resp.code).send(resp)
+		}
 	} catch (err) {
-		res.status(err.code).json(err.result)
+		next(err)
 	}
 }
 
@@ -137,7 +132,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 				console.error(err)
 				return
 			}
-			return res.status(200).json('Welcome, ' + user.firstName)
+			return res.status(200).json({ message: 'Welcome, ' + user.firstName })
 		})
 	})(req, res, next)
 }

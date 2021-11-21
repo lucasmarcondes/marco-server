@@ -1,7 +1,7 @@
 import express from 'express'
 const router = express.Router()
 import { Request, Response } from 'express'
-import { isAuthenticated } from './config/passport'
+import { isAuthenticated } from './helpers/authenticate'
 import * as userController from './controllers/user'
 import * as templateController from './controllers/template'
 import * as entryController from './controllers/entry'

@@ -1,38 +1,36 @@
 import { User } from '../models/user'
-import { success, error } from '../utils/api'
-import { IAPIReponse, IUserDocument } from '../types'
+import { IUserDocument } from '../types'
+import { AppError } from '../helpers/response'
 
-export const validateUser = (user: IUserDocument): IAPIReponse => {
+export const validateUserFields = (user: IUserDocument) => {
 	if (!user.firstName || !user.lastName || !user.email) {
-		throw error(400, 'Please fill out all fields')
+		throw new AppError(400, 'Please fill out all fields')
 	}
-
-	return success(200, 'Valid User')
+	return true
 }
 
-export const validatePassword = (password: string, comparePassword?: string): IAPIReponse => {
+export const validatePassword = (password: string, comparePassword?: string) => {
 	if (comparePassword && password != comparePassword) {
-		throw error(400, "Passwords don't match")
+		throw new AppError(400, "Passwords don't match")
 	}
 
 	if (password.length < 6) {
-		throw error(400, 'Password should be atleast 6 characters in length')
+		throw new AppError(400, 'Password should be atleast 6 characters in length')
 	}
-
-	throw error(200, 'Valid Password')
+	return true
 }
 
-export const validateNewUser = async (user: IUserDocument, confirmPassword: string): Promise<IAPIReponse> => {
-	validateUser(user)
+export const validateNewUser = async (user: IUserDocument, confirmPassword: string) => {
+	const validUser = validateUserFields(user)
+	if (validUser) {
+		if (!user.password || !confirmPassword) {
+			throw new AppError(400, "Passwords don't match")
+		}
 
-	if (!user.password || !confirmPassword) {
-		throw error(400, "Passwords don't match")
+		const resp = await User.find({ email: user.email })
+		if (resp.length) {
+			throw new AppError(400, 'Email is already in use')
+		}
+		return true
 	}
-
-	const response = await User.find({ email: user.email })
-	if (response.length) {
-		throw error(400, 'Email is already in use')
-	}
-
-	return success(200, 'Valid User')
 }

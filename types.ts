@@ -1,11 +1,11 @@
 import { Document } from 'mongoose'
 
-export interface IAPIReponse {
-	error: boolean
-	code: number
-	result?: any
+export interface IAPIResponse {
+	success: boolean
+	status: number
+	message: string
+	data?: any
 }
-
 export interface IUserPreferences {
 	darkMode: boolean
 }
