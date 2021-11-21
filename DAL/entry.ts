@@ -3,7 +3,7 @@ import { Error as MongooseError } from 'mongoose'
 import { AppError, AppResponse } from '../helpers/response'
 import { Entry } from '../models/Entry'
 
-export const getEntries = async (id: string) => {
+export const getEntries = async (id: string): Promise<AppResponse> => {
 	return Entry.find({ createdById: id })
 		.sort({ createdDate: 'desc' })
 		.then(entries => {

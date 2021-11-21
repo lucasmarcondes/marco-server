@@ -40,7 +40,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 			if (req.body.properties) entry.properties = req.body.properties
 
 			entry.save()
-			res.status(200).json(new AppResponse(200, null, entry))
+			res.status(200).json(new AppResponse(200, 'Entry updated successfully'))
 		} else {
 			throw new AppError(404, 'Entry not found')
 		}
