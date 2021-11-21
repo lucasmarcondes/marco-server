@@ -40,7 +40,9 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		password: req.body.password,
 		createdDate: new Date(),
 		lastModifiedDate: new Date(),
-		preferences: {},
+		preferences: {
+			darkMode: false,
+		},
 	})
 
 	try {
