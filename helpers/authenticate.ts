@@ -2,12 +2,14 @@ import passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 
-import { User } from '../models/user'
+import { User } from '../models/User'
+import { getUserByEmail, validatePassword } from '../DAL/user'
 import { IUserDocument } from 'types'
 import { Request, Response, NextFunction } from 'express'
 import { NativeError } from 'mongoose'
 
 import env from 'dotenv'
+import { AppError, AppResponse } from './response'
 env.config()
 
 passport.serializeUser<any, any>((req, user, done) => {
@@ -49,20 +51,22 @@ passport.use(
 )
 
 passport.use(
-	new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
-		User.findOne({ email: email.toLowerCase() }, (err: NativeError, user: IUserDocument) => {
-			if (err) return done(err)
-			if (!user) return done(undefined, false, { message: `Email '${email}' not found` })
-
-			user.comparePassword(password, (err: Error, isMatch: boolean) => {
-				if (err) return done(err)
-				if (isMatch) return done(undefined, user)
-				return done(undefined, false, { message: 'Wrong password' })
+	new LocalStrategy({ usernameField: 'email' }, (email, password, next) => {
+		getUserByEmail(email)
+			.then(user => {
+				if (user) {
+					validatePassword(user, password)
+					next(null, user)
+				} else {
+					throw new AppError(400, 'Email not found')
+				}
 			})
-		})
+			.catch(err => {
+				next(err)
+			})
 	})
 )
 
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
-	req.isAuthenticated() ? next() : res.status(401).json('Are you logged in?')
+	req.isAuthenticated() ? next() : next(new AppError(401, 'Are you logged in?'))
 }

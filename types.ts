@@ -21,7 +21,7 @@ export interface IUserDocument extends Document {
 	createdDate: Date
 	lastModifiedDate: Date
 	preferences?: IUserPreferences
-	comparePassword: (candidatePassword: string, cb: (err: any, isMatch: any) => void) => void
+	comparePassword: (candidatePassword: string) => boolean
 	gravatar: (size: number) => string
 }
 
