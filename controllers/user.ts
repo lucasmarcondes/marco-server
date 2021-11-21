@@ -49,7 +49,6 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 
 	try {
 		const user = await getUserById(req.user._id)
-
 		user.lastModifiedDate = new Date()
 		if (firstName) user.firstName = firstName
 		if (lastName) user.lastName = lastName

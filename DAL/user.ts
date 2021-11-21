@@ -21,17 +21,16 @@ export const deleteUser = async (id: string): Promise<AppResponse> => {
 }
 
 export const getUserById = async (id: string): Promise<IUserDocument> => {
-	return User.findById(id, (err: MongooseError, user: IUserDocument) => {
-		if (err) throw new AppError(401, err.message)
-		return user
-	})
+	return User.findById(id)
+		.then(user => user)
+		.catch(err => {
+			throw new AppError(500, err.message)
+		})
 }
 
 export const getUserByEmail = async (email: string): Promise<IUserDocument> => {
 	return User.findOne({ email: email.toLowerCase() })
-		.then(user => {
-			return user
-		})
+		.then(user => user)
 		.catch(err => {
 			throw new AppError(500, err.message)
 		})

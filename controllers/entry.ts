@@ -1,18 +1,16 @@
 import { Request, Response, NextFunction } from 'express'
-import { Error as MongooseError } from 'mongoose'
-import { Entry } from '../models/entry'
+import { Entry } from '../models/Entry'
 import { IEntryDocument, IUserDocument } from 'types'
+import { createEntry, deleteEntry, getEntries, getEntryById } from '../DAL/entry'
+import { AppError, AppResponse } from '../helpers/response'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	Entry.find({ createdById: (req.user as IUserDocument)._id })
-		.sort({ createdDate: 'desc' })
-		.then((entries: Array<IEntryDocument>) => {
-			res.status(200).json(entries)
-		})
-		.catch(err => {
-			res.status(500).json('There was an error returning entries')
-			console.error(err)
-		})
+	try {
+		const resp = await getEntries(req.user._id)
+		res.status(resp.code).send(resp)
+	} catch (err) {
+		next(err)
+	}
 }
 
 export const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -21,52 +19,42 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		title: req.body.title,
 		properties: req.body.properties,
 		createdDate: new Date(),
-		createdById: (req.user as IUserDocument)._id,
+		createdById: req.user._id,
 		lastModifiedDate: new Date(),
 		templateId: req.body.templateId,
 	})
-	newEntry
-		.save()
-		.then((entry: IEntryDocument) => res.status(200).json(entry))
-		.catch(err => {
-			res.status(500).json('There was an error creating this entry')
-			console.error(err)
-		})
+	try {
+		const resp = await createEntry(newEntry)
+		res.status(resp.code).json(resp)
+	} catch (err) {
+		next(err)
+	}
 }
 
 export const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	Entry.findOne({ _id: req.params.id, createdById: (req.user as IUserDocument)._id }, (err: MongooseError, entry: IEntryDocument) => {
-		if (err) {
-			res.status(500).json('There was an error updating this entry')
-			console.error(err)
-		}
-
+	try {
+		const entry = await getEntryById(req.params.id, req.user._id)
 		if (entry) {
+			entry.lastModifiedDate = new Date()
 			if (req.body.text) entry.text = req.body.text
 			if (req.body.title) entry.title = req.body.title
 			if (req.body.properties) entry.properties = req.body.properties
 
-			entry.lastModifiedDate = new Date()
 			entry.save()
-
-			res.status(200).json(entry)
+			res.status(200).json(new AppResponse(200, null, entry))
 		} else {
-			res.status(404).json('Entry not found')
+			throw new AppError(404, 'Entry not found')
 		}
-	})
+	} catch (err) {
+		next(err)
+	}
 }
 
 export const remove = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	Entry.deleteOne({ _id: req.params.id, createdById: (req.user as IUserDocument)._id })
-		.then(response => {
-			if (response.deletedCount !== 0) {
-				res.status(200).json('Entry deleted successfuly')
-			} else {
-				res.status(404).json('Entry not found')
-			}
-		})
-		.catch(err => {
-			res.status(500).json('There was an error deleting this entry')
-			console.error(err)
-		})
+	try {
+		const resp = await deleteEntry(req.params.id, req.user._id)
+		res.status(resp.code).json(resp)
+	} catch (err) {
+		next(err)
+	}
 }
