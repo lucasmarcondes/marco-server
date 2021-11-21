@@ -1,25 +1,5 @@
-import { Document, Schema, model } from 'mongoose'
-
-export interface Property {
-	_id: string
-	type: 'text' | 'checkbox' | 'number' | 'select'
-	subType?: string
-	description: string
-	default?: string | boolean | number | Array<string>
-	multipleValues?: boolean
-	showOnCard: boolean
-	options?: Array<string>
-	value?: string | boolean | number | Array<string>
-}
-
-export interface TemplateDocument extends Document {
-	_id: string
-	description: string
-	properties: Array<Property>
-	createdDate: Date
-	createdById: string
-	lastModifiedDate: Date
-}
+import { Schema, model } from 'mongoose'
+import { ITemplateDocument } from 'types'
 
 const TemplateSchema = new Schema(
 	{
@@ -32,4 +12,4 @@ const TemplateSchema = new Schema(
 	{ collection: 'templates' }
 )
 
-export const Template = model<TemplateDocument>('template', TemplateSchema)
+export const Template = model<ITemplateDocument>('template', TemplateSchema)

@@ -1,15 +1,5 @@
-import { Document, Schema, model } from 'mongoose'
-import { Property } from './Template'
-export interface EntryDocument extends Document {
-	_id: string
-	text?: string
-	title: string
-	createdDate: Date
-	lastModifiedDate: Date
-	createdById: string
-	templateId: string
-	properties?: Property[]
-}
+import { Schema, model } from 'mongoose'
+import { IEntryDocument } from 'types'
 
 const EntrySchema = new Schema(
 	{
@@ -24,4 +14,4 @@ const EntrySchema = new Schema(
 	{ collection: 'entries' }
 )
 
-export const Entry = model<EntryDocument>('entry', EntrySchema)
+export const Entry = model<IEntryDocument>('entry', EntrySchema)

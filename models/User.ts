@@ -1,21 +1,8 @@
-import { Document, Schema, model } from 'mongoose'
+import { Schema, model } from 'mongoose'
 import { randomBytes, scrypt, createHash } from 'crypto'
+import { IUserDocument } from 'types'
 
-export interface UserDocument extends Document {
-	_id: string
-	firstName: string
-	lastName: string
-	email: string
-	googleId?: string
-	password?: string
-	mobile?: string
-	createdDate: Date
-	lastModifiedDate: Date
-	comparePassword: (candidatePassword: string, cb: (err: any, isMatch: any) => void) => void
-	gravatar: (size: number) => string
-}
-
-const userSchema = new Schema<UserDocument>(
+const userSchema = new Schema<IUserDocument>(
 	{
 		firstName: { type: String, required: true },
 		lastName: { type: String, required: true },
@@ -23,6 +10,7 @@ const userSchema = new Schema<UserDocument>(
 		googleId: String,
 		password: String,
 		mobile: String,
+		preferences: Object,
 		createdDate: { type: Date, required: true },
 		lastModifiedDate: { type: Date, required: true },
 	},
@@ -30,7 +18,7 @@ const userSchema = new Schema<UserDocument>(
 )
 
 userSchema.pre('save', function save(next) {
-	const user: UserDocument = this
+	const user: IUserDocument = this
 	if (!user.isModified('password')) {
 		return next()
 	}
@@ -66,4 +54,4 @@ userSchema.methods.gravatar = function (size: number = 200) {
 	return `https://gravatar.com/avatar/${md5}?s=${size}&d=retro`
 }
 
-export const User = model<UserDocument>('user', userSchema)
+export const User = model<IUserDocument>('user', userSchema)

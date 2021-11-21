@@ -2,7 +2,8 @@ import passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 
-import { UserDocument, User } from '../models/User'
+import { User } from '../models/user'
+import { IUserDocument } from 'types'
 import { Request, Response, NextFunction } from 'express'
 import { NativeError } from 'mongoose'
 
@@ -14,7 +15,7 @@ passport.serializeUser<any, any>((req, user, done) => {
 })
 
 passport.deserializeUser((id, done) => {
-	User.findById(id, (err: NativeError, user: UserDocument) => done(err, user))
+	User.findById(id, (err: NativeError, user: IUserDocument) => done(err, user))
 })
 
 passport.use(
@@ -40,7 +41,7 @@ passport.use(
 						createdDate: new Date(),
 					})
 						.save()
-						.then((newUser: UserDocument) => done(null, newUser))
+						.then((newUser: IUserDocument) => done(null, newUser))
 				}
 			})
 		}
@@ -49,7 +50,7 @@ passport.use(
 
 passport.use(
 	new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
-		User.findOne({ email: email.toLowerCase() }, (err: NativeError, user: UserDocument) => {
+		User.findOne({ email: email.toLowerCase() }, (err: NativeError, user: IUserDocument) => {
 			if (err) return done(err)
 			if (!user) return done(undefined, false, { message: `Email '${email}' not found` })
 

@@ -1,23 +1,27 @@
 import { Request, Response, NextFunction } from 'express'
 import { Error as MongooseError } from 'mongoose'
-import { User, UserDocument } from '../models/User'
+import { User } from '../models/user'
 import passport from 'passport'
 import { IVerifyOptions } from 'passport-local'
+import { validateNewUser } from '../services/user'
+import { IUserDocument } from '../types'
+import { success, error } from '../utils/api'
 
 import '../config/passport'
 
 declare global {
 	namespace Express {
-		interface User extends UserDocument {}
+		interface User extends IUserDocument {}
 	}
 }
 
-const userDto = (user: UserDocument) => {
+const userDto = (user: IUserDocument) => {
 	return {
 		_id: user.id,
 		firstName: user.firstName,
 		lastName: user.lastName,
 		email: user.email,
+		preferences: user.preferences,
 		mobile: user.mobile,
 		createdDate: user.createdDate,
 	}
@@ -28,51 +32,37 @@ export const list = async (req: Request, res: Response, next: NextFunction): Pro
 }
 
 export const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	const { firstName, lastName, email, password, confirmPassword } = req.body
-	if (!firstName || !lastName || !email || !password || !confirmPassword) {
-		res.status(400).json('Please fill out all fields')
-		return
-	}
-	if (password != confirmPassword) {
-		res.status(400).json('Passwords must match')
-		return
-	}
-	if (password.length < 6) {
-		res.status(400).json('Password should be atleast 6 characters in length')
-		return
-	}
-
-	const response = await User.find({ email })
-	if (response.length) {
-		res.status(400).json('Email is already in use')
-		return
-	}
-
-	const newUser: UserDocument = new User({
-		firstName: firstName,
-		lastName: lastName,
-		email: email,
-		password: password,
+	const newUser: IUserDocument = new User({
+		firstName: req.body.firstName,
+		lastName: req.body.lastName,
+		email: req.body.email,
+		password: req.body.password,
 		createdDate: new Date(),
 		lastModifiedDate: new Date(),
+		preferences: {},
 	})
+	try {
+		const response = await validateNewUser(newUser, req.body.confirmPassword)
 
-	// save user
-	newUser
-		.save()
-		.then(() => {
-			res.sendStatus(201)
-		})
-		.catch((err: MongooseError) => {
-			res.status(500).json('There was an error with your request')
-			console.error(err)
-		})
+		// save user
+		newUser
+			.save()
+			.then(() => {
+				res.status(response.code).json(response.result)
+			})
+			.catch((err: MongooseError) => {
+				res.status(500).json(err.message)
+				console.error(err)
+			})
+	} catch (err) {
+		res.status(err.code).json(err.result)
+	}
 }
 
 export const update = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	const { firstName, lastName, mobile, email, previousPassword, newPassword } = req.body
+	const { firstName, lastName, mobile, email, previousPassword, newPassword, preferences } = req.body
 
-	User.findById(req.user._id, (err: MongooseError, user: UserDocument) => {
+	User.findById(req.user._id, (err: MongooseError, user: IUserDocument) => {
 		if (err) {
 			res.status(401).json('There was an error updating your account')
 			console.error(err)
@@ -84,6 +74,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 		if (lastName) user.lastName = lastName
 		if (mobile) user.mobile = mobile
 		if (email) user.email = email
+		if (preferences) user.preferences = preferences
 
 		if ((previousPassword && !newPassword) || (!previousPassword && newPassword)) {
 			res.status(400).json('Both password fields must be filled out to update password')
@@ -129,7 +120,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 		return
 	}
 
-	passport.authenticate('local', (err: any, user: UserDocument, info: IVerifyOptions) => {
+	passport.authenticate('local', (err: any, user: IUserDocument, info: IVerifyOptions) => {
 		if (err) {
 			res.status(500).json('There was an error authenticating your account')
 			console.error(err)
