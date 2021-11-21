@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
-import { Entry } from '../models/Entry'
-import { IEntryDocument, IUserDocument } from 'types'
-import { createEntry, deleteEntry, getEntries, getEntryById } from '../DAL/entry'
 import { AppError, AppResponse } from '../helpers/response'
+import { createEntry, deleteEntry, getEntries, getEntryById } from '../DAL/entry'
+import { Entry } from '../models/Entry'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	try {
