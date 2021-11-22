@@ -8,12 +8,6 @@ import { createUser, deleteUser, getUserByEmail, getUserById, validatePassword }
 import '../helpers/authenticate'
 import { AppError, AppResponse } from '../helpers/response'
 
-declare global {
-	namespace Express {
-		interface User extends IUserDocument {}
-	}
-}
-
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	res.status(200).json(new AppResponse(200, undefined, getUserDto(req.user)))
 }

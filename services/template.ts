@@ -1,5 +1,6 @@
+import { ITemplateDocument } from '../types'
 import { AppError } from '../helpers/response'
-export const validateTemplateFields = (description: string, properties: string) => {
-	if (!description) throw new AppError(400, 'A template description is required')
-	if (!properties) throw new AppError(400, 'Properties are required')
+export const validateTemplateFields = (template: ITemplateDocument) => {
+	if (!template.description) throw new AppError(400, 'A template description is required')
+	if (!template.properties) throw new AppError(400, 'Properties are required')
 }

@@ -7,6 +7,13 @@ import MongoStore from 'connect-mongo'
 import env from 'dotenv'
 import './helpers/authenticate'
 import { errorHandling } from './helpers/response'
+import { IUserDocument } from 'types'
+
+declare global {
+	namespace Express {
+		interface User extends IUserDocument {}
+	}
+}
 
 const app = express()
 

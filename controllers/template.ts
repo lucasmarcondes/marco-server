@@ -23,7 +23,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		lastModifiedDate: new Date(),
 	})
 	try {
-		validateTemplateFields(req.body.description, req.body.properties)
+		validateTemplateFields(newTemplate)
 		const resp = await createTemplate(newTemplate)
 		res.status(resp.code).json(resp)
 	} catch (err) {
@@ -35,10 +35,11 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 	try {
 		const template = await getTemplateById(req.params.id, req.user._id)
 		if (template) {
-			if (req.body.description) template.description = req.body.description
-			if (req.body.properties) template.properties = req.body.properties
-
+			template.description = req.body.description
+			template.properties = req.body.properties
 			template.lastModifiedDate = new Date()
+			validateTemplateFields(template)
+
 			template.save()
 
 			res.status(200).json(new AppResponse(200, 'Template updated successfully'))

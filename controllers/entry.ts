@@ -24,7 +24,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		templateId: req.body.templateId,
 	})
 	try {
-		validateEntryFields(req.body.title, req.body.text)
+		validateEntryFields(newEntry)
 		const resp = await createEntry(newEntry)
 		res.status(resp.code).json(resp)
 	} catch (err) {
@@ -37,9 +37,10 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 		const entry = await getEntryById(req.params.id, req.user._id)
 		if (entry) {
 			entry.lastModifiedDate = new Date()
-			if (req.body.text) entry.text = req.body.text
-			if (req.body.title) entry.title = req.body.title
-			if (req.body.properties) entry.properties = req.body.properties
+			entry.text = req.body.text
+			entry.title = req.body.title
+			entry.properties = req.body.properties
+			validateEntryFields(entry)
 
 			entry.save()
 			res.status(200).json(new AppResponse(200, 'Entry updated successfully'))
