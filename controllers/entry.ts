@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import { AppError, AppResponse } from '../helpers/response'
+import { validateEntryFields } from '../services/entry'
 import { createEntry, deleteEntry, getEntries, getEntryById } from '../DAL/entry'
 import { Entry } from '../models/Entry'
 
@@ -23,6 +24,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		templateId: req.body.templateId,
 	})
 	try {
+		validateEntryFields(req.body.title, req.body.text)
 		const resp = await createEntry(newEntry)
 		res.status(resp.code).json(resp)
 	} catch (err) {

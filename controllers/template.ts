@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { AppError, AppResponse } from '../helpers/response'
 import { Template } from '../models/Template'
-import { ITemplateDocument, IUserDocument } from 'types'
+import { ITemplateDocument } from 'types'
 import { getTemplates, createTemplate, getTemplateById, deleteTemplate } from '../DAL/template'
 import { validateTemplateFields } from '../services/template'
 
@@ -18,7 +18,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 	const newTemplate: ITemplateDocument = new Template({
 		description: req.body.description,
 		createdDate: new Date(),
-		createdById: (req.user as IUserDocument)._id,
+		createdById: req.user._id,
 		properties: req.body.properties,
 		lastModifiedDate: new Date(),
 	})

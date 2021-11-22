@@ -1,4 +1,5 @@
 import { AppError } from '../helpers/response'
 export const validateTemplateFields = (description: string, properties: string) => {
-	if (!description || !properties) throw new AppError(401, 'Templates require a description and properties')
+	if (!description) throw new AppError(400, 'A template description is required')
+	if (!properties) throw new AppError(400, 'Properties are required')
 }
