@@ -22,6 +22,8 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		lastModifiedDate: new Date(),
 		preferences: {
 			darkMode: false,
+			accentColor: '#BFDBFF',
+			textColor: '#000',
 		},
 	})
 

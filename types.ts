@@ -8,6 +8,8 @@ export interface IAPIResponse {
 }
 export interface IUserPreferences {
 	darkMode: boolean
+	accentColor: string
+	textColor: string
 }
 
 export interface IUserDocument extends Document {
