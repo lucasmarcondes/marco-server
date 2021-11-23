@@ -2,16 +2,18 @@ import { User } from '../models/User'
 import { IUserDocument } from '../types'
 import { AppError } from '../helpers/response'
 
-export const getUserDto = (user: IUserDocument) => {
+export const getUserDto = (user: any) => {
 	return {
 		_id: user._id,
 		firstName: user.firstName,
 		lastName: user.lastName,
 		email: user.email,
 		preferences: user.preferences,
+		notifications: user.notifications,
 		mobile: user.mobile,
 		createdDate: user.createdDate,
-	}
+		gravatar: user.gravatar,
+	} as IUserDocument
 }
 
 export const validateNewUserFields = (user: IUserDocument, confirmPassword: string) => {
@@ -43,3 +45,5 @@ export const validatePasswordFields = (password: string, comparePassword?: strin
 	}
 	return true
 }
+
+export const validateEmailConfirmation = (user: IUserDocument) => {}

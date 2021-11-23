@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import passport from 'passport'
 import { User } from '../models/User'
-import { getUserDto, validateNewUserFields, validatePasswordFields, validateLoginFields } from '../services/user'
+import { getUserDto, validateNewUserFields, validatePasswordFields, validateLoginFields, validateEmailConfirmation } from '../services/user'
 import { IUserDocument } from '../types'
 import { createUser, deleteUser, getUserByEmail, getUserById, validatePassword } from '../DAL/user'
 
@@ -9,7 +9,9 @@ import '../helpers/authenticate'
 import { AppError, AppResponse } from '../helpers/response'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-	res.status(200).json(new AppResponse(200, undefined, getUserDto(req.user)))
+	let user = getUserDto(req.user)
+	validateEmailConfirmation(user)
+	res.status(200).json(new AppResponse(200, undefined, user))
 }
 
 export const create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -20,6 +22,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		password: req.body.password,
 		createdDate: new Date(),
 		lastModifiedDate: new Date(),
+		notifications: [],
 		preferences: {
 			darkMode: false,
 			accentColor: '#BFDBFF',
@@ -44,7 +47,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 	const { firstName, lastName, mobile, email, previousPassword, newPassword, preferences } = req.body
 
 	try {
-		const user = await getUserById(req.user._id)
+		const user = await getUserById((req.user as IUserDocument)._id)
 		user.lastModifiedDate = new Date()
 		if (firstName) user.firstName = firstName
 		if (lastName) user.lastName = lastName
@@ -67,7 +70,7 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 
 export const remove = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const resp = await deleteUser(req.user._id)
+		const resp = await deleteUser((req.user as IUserDocument)._id)
 		res.status(resp.code).json(resp)
 	} catch (err) {
 		next(err)

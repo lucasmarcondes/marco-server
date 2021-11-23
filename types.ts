@@ -12,20 +12,27 @@ export interface IUserPreferences {
 	textColor: string
 }
 
+export interface INotification {
+	id: string
+	title?: string
+	message: string
+}
+
 export interface IUserDocument extends Document {
-	_id: string
+	_id?: string
 	firstName: string
 	lastName: string
 	email: string
-	isEmailConfirmed: boolean
+	isEmailConfirmed?: boolean
 	googleId?: string
 	password?: string
 	mobile?: string
 	createdDate: Date
-	lastModifiedDate: Date
+	lastModifiedDate?: Date
 	preferences?: IUserPreferences
+	notifications?: INotification[]
 	comparePassword: (candidatePassword: string) => boolean
-	gravatar: (size: number) => string
+	gravatar?: (size: number) => string
 }
 
 export interface IEntryDocument extends Document {

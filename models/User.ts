@@ -12,6 +12,7 @@ const userSchema = new Schema<IUserDocument>(
 		password: String,
 		mobile: String,
 		preferences: Object,
+		notifications: Object,
 		createdDate: { type: Date, required: true },
 		lastModifiedDate: { type: Date, required: true },
 	},
