@@ -7,6 +7,7 @@ const userSchema = new Schema<IUserDocument>(
 		firstName: { type: String, required: true },
 		lastName: { type: String, required: true },
 		email: { type: String, required: true, unique: true },
+		isEmailConfirmed: { type: Boolean },
 		googleId: String,
 		password: String,
 		mobile: String,

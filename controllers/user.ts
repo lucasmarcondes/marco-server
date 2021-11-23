@@ -31,7 +31,7 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		validateNewUserFields(newUser, req.body.confirmPassword)
 		const existingEmail = await getUserByEmail(newUser.email)
 		if (existingEmail) {
-			throw new AppError(400, 'Email is already in use')
+			throw new AppError(409, 'Email is already in use')
 		}
 		const resp = await createUser(newUser)
 		res.status(resp.code).json(resp)

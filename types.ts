@@ -17,6 +17,7 @@ export interface IUserDocument extends Document {
 	firstName: string
 	lastName: string
 	email: string
+	isEmailConfirmed: boolean
 	googleId?: string
 	password?: string
 	mobile?: string
