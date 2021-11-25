@@ -38,7 +38,7 @@ if (require.main === module) {
 
 //Middleware
 const corsOptions = {
-	origin: 'http://localhost:3000',
+	origin: process.env.URL,
 	credentials: true, //access-control-allow-credentials:true
 	optionSuccessStatus: 200,
 }

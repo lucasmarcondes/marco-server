@@ -2,6 +2,7 @@ import { ITemplateDocument } from '../types'
 import { Error as MongooseError } from 'mongoose'
 import { AppError, AppResponse } from '../helpers/response'
 import { Template } from '../models/Template'
+import { TEMPLATE_CREATED_MSG, TEMPLATE_DELETED_MSG, TEMPLATE_404_MSG } from '../constants'
 
 export const getTemplates = async (id: string): Promise<AppResponse> => {
 	return Template.find({ createdById: id })
@@ -16,7 +17,7 @@ export const getTemplates = async (id: string): Promise<AppResponse> => {
 export const createTemplate = async (newEntry: ITemplateDocument): Promise<AppResponse> => {
 	return newEntry
 		.save()
-		.then(() => new AppResponse(201, 'Template created successfully'))
+		.then(() => new AppResponse(201, TEMPLATE_CREATED_MSG))
 		.catch((err: MongooseError) => {
 			throw new AppError(500, err.message)
 		})
@@ -34,9 +35,9 @@ export const deleteTemplate = async (entryId: string, userId: string): Promise<A
 	return Template.deleteOne({ _id: entryId, createdById: userId })
 		.then(response => {
 			if (response.deletedCount !== 0) {
-				return new AppResponse(201, 'Template deleted successfully')
+				return new AppResponse(201, TEMPLATE_DELETED_MSG)
 			} else {
-				throw new AppError(500, 'Template not found')
+				throw new AppError(404, TEMPLATE_404_MSG)
 			}
 		})
 		.catch(err => {

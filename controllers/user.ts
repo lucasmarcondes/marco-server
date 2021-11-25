@@ -1,16 +1,17 @@
 import { Request, Response, NextFunction } from 'express'
 import passport from 'passport'
-import { User } from '../models/User'
-import { getUserDto, validateNewUserFields, validatePasswordFields, validateLoginFields, validateEmailConfirmation } from '../services/user'
+import { User } from '../models/user'
+import { getUserDto, validateNewUserFields, validatePasswordFields, validateLoginFields } from '../services/user'
 import { IUserDocument } from '../types'
 import { createUser, deleteUser, getUserByEmail, getUserById, validatePassword } from '../DAL/user'
-
+import { sendConfirmationEmail } from '../services/email'
+import { createToken } from '../DAL/userToken'
 import '../helpers/authenticate'
 import { AppError, AppResponse } from '../helpers/response'
+import { DEFAULT_ACCENT_COLOR, DEFAULT_TEXT_COLOR, USER_EMAIL_409_MSG, LOGOUT_MSG, WELCOME_MSG } from '../constants'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	let user = getUserDto(req.user)
-	validateEmailConfirmation(user)
 	res.status(200).json(new AppResponse(200, undefined, user))
 }
 
@@ -25,8 +26,8 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		notifications: [],
 		preferences: {
 			darkMode: false,
-			accentColor: '#BFDBFF',
-			textColor: '#000',
+			accentColor: DEFAULT_ACCENT_COLOR,
+			textColor: DEFAULT_TEXT_COLOR,
 		},
 	})
 
@@ -34,10 +35,17 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		validateNewUserFields(newUser, req.body.confirmPassword)
 		const existingEmail = await getUserByEmail(newUser.email)
 		if (existingEmail) {
-			throw new AppError(409, 'Email is already in use')
+			throw new AppError(409, USER_EMAIL_409_MSG)
 		}
-		const resp = await createUser(newUser)
-		res.status(resp.code).json(resp)
+		await createUser(newUser)
+		const token = await createToken(newUser._id.valueOf())
+		if (token) {
+			await sendConfirmationEmail(newUser.email, token)
+		}
+		req.logIn(newUser, err => {
+			if (err) next(err)
+			else return res.status(200).json(new AppResponse(200, WELCOME_MSG.replace('{0}', newUser.firstName)))
+		})
 	} catch (err) {
 		next(err)
 	}
@@ -68,6 +76,17 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 	}
 }
 
+export const resendConfirmationEmail = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		console.log(req)
+		const token = await createToken(req.user._id.valueOf())
+		const resp = await sendConfirmationEmail(req.user.email, token)
+		res.status(resp.code).json(resp)
+	} catch (err) {
+		next(err)
+	}
+}
+
 export const remove = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const resp = await deleteUser((req.user as IUserDocument)._id)
@@ -85,7 +104,7 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 		else {
 			req.logIn(user, err => {
 				if (err) next(err)
-				else return res.status(200).json(new AppResponse(200, `Welcome, ${user.firstName}`))
+				else return res.status(200).json(new AppResponse(200, WELCOME_MSG.replace('{0}', user.firstName)))
 			})
 		}
 	})(req, res, next)
@@ -106,5 +125,5 @@ export const googleRedirect = async (req: Request, res: Response, next: NextFunc
 
 export const logout = (req: Request, res: Response): void => {
 	req.logout()
-	res.send(200).json(new AppResponse(200, 'Logout successful'))
+	res.status(200).json(new AppResponse(200, LOGOUT_MSG))
 }

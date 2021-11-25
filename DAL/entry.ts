@@ -2,6 +2,7 @@ import { IEntryDocument } from '../types'
 import { Error as MongooseError } from 'mongoose'
 import { AppError, AppResponse } from '../helpers/response'
 import { Entry } from '../models/Entry'
+import { ENTRY_404_MSG, ENTRY_CREATED_MSG, ENTRY_DELETED_MSG } from '../constants'
 
 export const getEntries = async (id: string): Promise<AppResponse> => {
 	return Entry.find({ createdById: id })
@@ -17,7 +18,7 @@ export const getEntries = async (id: string): Promise<AppResponse> => {
 export const createEntry = async (newEntry: IEntryDocument): Promise<AppResponse> => {
 	return newEntry
 		.save()
-		.then(() => new AppResponse(201, 'Entry created successfully'))
+		.then(() => new AppResponse(201, ENTRY_CREATED_MSG))
 		.catch((err: MongooseError) => {
 			throw new AppError(500, err.message)
 		})
@@ -35,9 +36,9 @@ export const deleteEntry = async (entryId: string, userId: string): Promise<AppR
 	return Entry.deleteOne({ _id: entryId, createdById: userId })
 		.then(response => {
 			if (response.deletedCount !== 0) {
-				return new AppResponse(201, 'Entry deleted successfully')
+				return new AppResponse(201, ENTRY_DELETED_MSG)
 			} else {
-				throw new AppError(500, 'Entry not found')
+				throw new AppError(404, ENTRY_404_MSG)
 			}
 		})
 		.catch(err => {

@@ -35,6 +35,12 @@ export interface IUserDocument extends Document {
 	gravatar?: (size: number) => string
 }
 
+export interface IUserToken extends Document {
+	_id?: string
+	token: string
+	userId: string
+}
+
 export interface IEntryDocument extends Document {
 	_id: string
 	text?: string

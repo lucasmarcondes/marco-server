@@ -5,6 +5,7 @@ import { isAuthenticated } from './helpers/authenticate'
 import * as userController from './controllers/user'
 import * as templateController from './controllers/template'
 import * as entryController from './controllers/entry'
+import * as userTokenController from './controllers/userToken'
 
 // default
 router.get('/', (req: Request, res: Response) => res.send('Marco API'))
@@ -14,6 +15,9 @@ router.post('/user', userController.create)
 router.get('/user', isAuthenticated, userController.list)
 router.put('/user', isAuthenticated, userController.update)
 router.delete('/user', isAuthenticated, userController.remove)
+router.put('/user/resendEmail', userController.resendConfirmationEmail)
+// userToken
+router.put('/verify/:token', userTokenController.verify)
 
 router.post('/user/login', userController.login)
 router.post('/user/logout', userController.logout)
