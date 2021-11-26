@@ -5,10 +5,11 @@ import { getUserDto, validateNewUserFields, validatePasswordFields, validateLogi
 import { IUserDocument } from '../types'
 import { createUser, deleteUser, getUserByEmail, getUserById, validatePassword } from '../DAL/user'
 import { sendConfirmationEmail } from '../services/email'
-import { createToken } from '../DAL/userToken'
+import { createToken, findTokenAndDelete } from '../DAL/userToken'
 import '../helpers/authenticate'
 import { AppError, AppResponse } from '../helpers/response'
 import { DEFAULT_ACCENT_COLOR, DEFAULT_TEXT_COLOR, USER_EMAIL_409_MSG, LOGOUT_MSG, WELCOME_MSG } from '../constants'
+import { encrypt } from '../services/userToken'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	let user = getUserDto(req.user)
@@ -60,7 +61,13 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 		if (firstName) user.firstName = firstName
 		if (lastName) user.lastName = lastName
 		if (mobile) user.mobile = mobile
-		if (email) user.email = email
+
+		let emailChanged = false
+		if (email && user.email != email) {
+			user.email = email
+			emailChanged = true
+			user.isEmailConfirmed = false
+		}
 		if (preferences) user.preferences = preferences
 
 		const validPasswordFields = validatePasswordFields(previousPassword, newPassword)
@@ -69,7 +76,14 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 			user.password = newPassword
 		}
 
-		user.save()
+		await user.save()
+		if (emailChanged) {
+			const userId = user._id.valueOf()
+			// delete old token
+			await findTokenAndDelete(userId)
+			const token = await createToken(userId)
+			const resp = await sendConfirmationEmail(user.email, token)
+		}
 		res.status(200).json(new AppResponse(200, null, getUserDto(user)))
 	} catch (err) {
 		next(err)
@@ -78,9 +92,12 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 
 export const resendConfirmationEmail = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		console.log(req)
-		const token = await createToken(req.user._id.valueOf())
-		const resp = await sendConfirmationEmail(req.user.email, token)
+		const user = req.user as IUserDocument
+		const userId = user._id.valueOf()
+		// delete old token
+		await findTokenAndDelete(userId)
+		const token = await createToken(userId)
+		const resp = await sendConfirmationEmail(user.email, token)
 		res.status(resp.code).json(resp)
 	} catch (err) {
 		next(err)

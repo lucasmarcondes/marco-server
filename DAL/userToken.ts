@@ -4,8 +4,8 @@ import { IUserDocument, IUserToken } from 'types'
 import { UserToken } from '../models/userToken'
 import { encrypt } from '../services/userToken'
 
-export const findTokenAndDelete = async (token: string): Promise<IUserToken> => {
-	return UserToken.findOneAndDelete({ token: token })
+export const findTokenAndDelete = async (userId: string): Promise<IUserToken> => {
+	return UserToken.findOneAndDelete({ userId: userId })
 		.then(userToken => userToken)
 		.catch(err => {
 			throw new AppError(500, err.message)

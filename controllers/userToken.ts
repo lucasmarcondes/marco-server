@@ -7,9 +7,9 @@ import { USER_TOKEN_404_MSG, EMAIL_CONFIRMED_MSG } from '../constants'
 
 export const verify = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	try {
-		const resp = await findTokenAndDelete(req.params.token)
+		const userId = decrypt(req.params.token)
+		const resp = await findTokenAndDelete(userId)
 		if (resp) {
-			const userId = decrypt(req.params.token)
 			const user = await getUserById(userId)
 			user.isEmailConfirmed = true
 			user.save()

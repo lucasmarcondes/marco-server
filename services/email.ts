@@ -52,7 +52,7 @@ export const sendConfirmationEmail = async (email: string, userToken: IUserToken
 													</p>
 
 													<p style="margin:0;margin-bottom:30px;color:#294661;font-family:'Open Sans','Helvetica Neue','Helvetica',Helvetica,Arial,sans-serif;font-size:16px;font-weight:300">
-														<small>Your link is active for 48 hours. After that, you will need to resend the verification email.</small>
+														<small>Your link is active for 24 hours. After that, you will need to resend the verification email.</small>
 													</p>
 												</td>
 											</tr>

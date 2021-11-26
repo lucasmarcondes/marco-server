@@ -5,7 +5,7 @@ const userTokenSchema = new Schema(
 	{
 		token: String,
 		userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-		createdAt: { type: Date, expires: 2 * 86400, default: Date.now },
+		createdAt: { type: Date, expires: 86400, default: Date.now },
 	},
 	{ collection: 'userToken' }
 )
