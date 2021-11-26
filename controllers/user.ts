@@ -10,6 +10,8 @@ import '../helpers/authenticate'
 import { AppError, AppResponse } from '../helpers/response'
 import { DEFAULT_ACCENT_COLOR, DEFAULT_TEXT_COLOR, USER_EMAIL_409_MSG, LOGOUT_MSG, WELCOME_MSG } from '../constants'
 import { encrypt } from '../services/userToken'
+import { createTemplate } from '../DAL/template'
+import { Template } from '../models/Template'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	let user = getUserDto(req.user)
@@ -43,6 +45,16 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		if (token) {
 			await sendConfirmationEmail(newUser.email, token)
 		}
+		// TODO: this can be removed later, but for now lets create a template when user is created
+		await createTemplate(
+			new Template({
+				description: 'New Template',
+				createdDate: new Date(),
+				createdById: newUser._id,
+				properties: [],
+				lastModifiedDate: new Date(),
+			})
+		)
 		req.logIn(newUser, err => {
 			if (err) next(err)
 			else return res.status(200).json(new AppResponse(200, WELCOME_MSG.replace('{0}', newUser.firstName)))
