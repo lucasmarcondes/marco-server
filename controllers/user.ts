@@ -4,14 +4,21 @@ import { User } from '../models/user'
 import { getUserDto, validateNewUserFields, validatePasswordFields, validateLoginFields } from '../services/user'
 import { IUserDocument } from '../types'
 import { createUser, deleteUser, getUserByEmail, getUserById, validatePassword } from '../DAL/user'
-import { sendConfirmationEmail } from '../services/email'
+import { sendResetPasswordEmail, sendVerifyEmail } from '../services/email'
 import { createToken, findTokenAndDelete } from '../DAL/userToken'
 import '../helpers/authenticate'
 import { AppError, AppResponse } from '../helpers/response'
-import { DEFAULT_ACCENT_COLOR, DEFAULT_TEXT_COLOR, USER_EMAIL_409_MSG, LOGOUT_MSG, WELCOME_MSG } from '../constants'
-import { encrypt } from '../services/userToken'
+import {
+	DEFAULT_ACCENT_COLOR,
+	USER_EMAIL_409_MSG,
+	LOGOUT_MSG,
+	WELCOME_MSG,
+	PASSWORD_RESET_SUCCESS_MSG,
+	PASSWORD_RESET_TOKEN_ERROR_MSG,
+} from '../constants'
 import { createTemplate } from '../DAL/template'
 import { Template } from '../models/Template'
+import { decrypt } from '../services/userToken'
 
 export const list = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	let user = getUserDto(req.user)
@@ -30,7 +37,6 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 		preferences: {
 			darkMode: false,
 			accentColor: DEFAULT_ACCENT_COLOR,
-			textColor: DEFAULT_TEXT_COLOR,
 		},
 	})
 
@@ -41,9 +47,9 @@ export const create = async (req: Request, res: Response, next: NextFunction): P
 			throw new AppError(409, USER_EMAIL_409_MSG)
 		}
 		await createUser(newUser)
-		const token = await createToken(newUser._id.valueOf())
+		const token = await createToken(newUser._id.valueOf(), 'verifyEmail')
 		if (token) {
-			await sendConfirmationEmail(newUser.email, token)
+			await sendVerifyEmail(newUser, token)
 		}
 		// TODO: this can be removed later, but for now lets create a template when user is created
 		await createTemplate(
@@ -92,9 +98,9 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 		if (emailChanged) {
 			const userId = user._id.valueOf()
 			// delete old token
-			await findTokenAndDelete(userId)
-			const token = await createToken(userId)
-			const resp = await sendConfirmationEmail(user.email, token)
+			await findTokenAndDelete(userId, 'verifyEmail')
+			const token = await createToken(userId, 'verifyEmail')
+			const resp = await sendVerifyEmail(user, token)
 		}
 		res.status(200).json(new AppResponse(200, null, getUserDto(user)))
 	} catch (err) {
@@ -102,15 +108,46 @@ export const update = async (req: Request, res: Response, next: NextFunction): P
 	}
 }
 
-export const resendConfirmationEmail = async (req: Request, res: Response, next: NextFunction) => {
+export const sendConfirmationEmail = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const user = req.user as IUserDocument
+		let user = req.user as IUserDocument
+		const type = req.body.type
+		if (type == 'passwordReset' && !user) {
+			const email = req.body.email
+			user = await getUserByEmail(email)
+		}
 		const userId = user._id.valueOf()
 		// delete old token
-		await findTokenAndDelete(userId)
-		const token = await createToken(userId)
-		const resp = await sendConfirmationEmail(user.email, token)
+		await findTokenAndDelete(userId, type)
+		const token = await createToken(userId, type)
+		let resp
+		if (type == 'verifyEmail') resp = await sendVerifyEmail(user, token)
+		else if (type == 'passwordReset') resp = await sendResetPasswordEmail(user, token)
 		res.status(resp.code).json(resp)
+	} catch (err) {
+		next(err)
+	}
+}
+
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const token = req.body.token
+		const password = req.body.password
+		const confirmPassword = req.body.confirmPassword
+		const validPasswordFields = validatePasswordFields(password, confirmPassword)
+		if (validPasswordFields) {
+			const userId = decrypt(token)
+			const tokenResponse = await findTokenAndDelete(userId, 'passwordReset')
+			if (tokenResponse) {
+				const user = await getUserById(userId)
+				user.lastModifiedDate = new Date()
+				user.password = password
+				await user.save()
+				res.status(200).json(new AppResponse(200, PASSWORD_RESET_SUCCESS_MSG))
+			} else {
+				throw new AppError(404, PASSWORD_RESET_TOKEN_ERROR_MSG)
+			}
+		}
 	} catch (err) {
 		next(err)
 	}

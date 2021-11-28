@@ -23,9 +23,14 @@ export class AppResponse {
 	}
 }
 
-export const errorHandling = (err: AppError, req: Request, res: Response, next: NextFunction) => {
-	if (err.code >= 500) {
+export const errorHandling = (err: AppError | Error, req: Request, res: Response, next: NextFunction) => {
+	if (err instanceof AppError) {
+		if (err.code >= 500) {
+			console.error(err.stack)
+		}
+		res.status(err.code).json(new AppResponse(err.code, err.message))
+	} else {
 		console.error(err.stack)
+		res.status(500).json(new AppResponse(500, err.message))
 	}
-	res.status(err.code).json(new AppResponse(err.code, err.message))
 }

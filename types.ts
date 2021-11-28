@@ -9,7 +9,6 @@ export interface IAPIResponse {
 export interface IUserPreferences {
 	darkMode: boolean
 	accentColor: string
-	textColor: string
 }
 
 export interface INotification {
@@ -39,6 +38,7 @@ export interface IUserToken extends Document {
 	_id?: string
 	token: string
 	userId: string
+	type: string
 }
 
 export interface IEntryDocument extends Document {

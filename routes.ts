@@ -15,7 +15,9 @@ router.post('/user', userController.create)
 router.get('/user', isAuthenticated, userController.list)
 router.put('/user', isAuthenticated, userController.update)
 router.delete('/user', isAuthenticated, userController.remove)
-router.put('/user/resendEmail', userController.resendConfirmationEmail)
+router.put('/user/sendConfirmationEmail', userController.sendConfirmationEmail)
+router.put('/user/resetPassword', userController.resetPassword)
+
 // userToken
 router.put('/verify/:token', userTokenController.verify)
 

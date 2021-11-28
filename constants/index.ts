@@ -22,6 +22,8 @@ export const PASSWORD_REQUIRED_MSG = 'Password is required'
 export const PASSWORD_MISMATCH_MSG = "Passwords don't match"
 export const PASSWORD_FIELDS_NULL_MSG = 'Both password fields must be filled out'
 export const PASSWORD_LENGTH_MSG = 'Password should be atleast 6 characters in length'
+export const PASSWORD_RESET_SUCCESS_MSG = 'Your password has been updated'
+export const PASSWORD_RESET_TOKEN_ERROR_MSG = 'Your password reset token has expired. Please reset your password again to proceed'
 export const LOGIN_FIELDS_NULL_MSG = 'Both fields must be filled'
 export const USER_EMAIL_409_MSG = 'Email is already in use'
 export const USER_EMAIL_404_MSG = 'Email not found'
@@ -36,5 +38,4 @@ export const USER_TOKEN_CREATED_MSG = 'Token successfully generated for {0}'
 export const USER_TOKEN_404_MSG = 'Invalid token'
 
 //
-export const DEFAULT_ACCENT_COLOR = '#388eff'
-export const DEFAULT_TEXT_COLOR = '#fff'
+export const DEFAULT_ACCENT_COLOR = 'blue-200'
