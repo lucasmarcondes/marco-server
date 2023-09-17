@@ -1,7 +1,7 @@
 import { IUserDocument } from 'types'
 import { AppError, AppResponse } from '../helpers/response'
 import { Error as MongooseError } from 'mongoose'
-import { User } from '../models/user'
+import { User } from '../models/User'
 import { USER_CREATED_MSG, USER_DELETED_MSG, WRONG_PASSWORD_MSG } from '../constants'
 
 export const createUser = async (newUser: IUserDocument): Promise<AppResponse> => {

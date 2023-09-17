@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
 import passport from 'passport'
-import { User } from '../models/user'
+import { User } from '../models/User'
 import { getUserDto, validateNewUserFields, validatePasswordFields, validateLoginFields } from '../services/user'
 import { IUserDocument } from '../types'
 import { createUser, deleteUser, getUserByEmail, getUserById, validatePassword } from '../DAL/user'
@@ -165,7 +165,7 @@ export const remove = async (req: Request, res: Response, next: NextFunction) =>
 export const login = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 	validateLoginFields(req.body.email, req.body.password)
 
-	passport.authenticate('local', (err, user) => {
+	passport.authenticate('local', (err: any, user: any) => {
 		if (err) next(err)
 		else {
 			req.logIn(user, err => {
@@ -190,6 +190,6 @@ export const googleRedirect = async (req: Request, res: Response, next: NextFunc
 }
 
 export const logout = (req: Request, res: Response): void => {
-	req.logout()
+	req.logout(null, null)
 	res.status(200).json(new AppResponse(200, LOGOUT_MSG))
 }

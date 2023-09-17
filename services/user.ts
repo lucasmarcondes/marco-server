@@ -1,4 +1,4 @@
-import { User } from '../models/user'
+import { User } from '../models/User'
 import { IUserDocument } from '../types'
 import { AppError } from '../helpers/response'
 import {

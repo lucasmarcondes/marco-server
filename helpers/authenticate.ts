@@ -2,11 +2,11 @@ import passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 
-import { User } from '../models/user'
+import { User } from '../models/User'
 import { getUserByEmail, validatePassword } from '../DAL/user'
 import { IUserDocument } from 'types'
 import { Request, Response, NextFunction } from 'express'
-import { NativeError } from 'mongoose'
+import { MongooseError } from 'mongoose'
 
 import env from 'dotenv'
 import { AppError, AppResponse } from './response'
@@ -19,7 +19,7 @@ passport.serializeUser<any, any>((req, user, done) => {
 })
 
 passport.deserializeUser((id, done) => {
-	User.findById(id, (err: NativeError, user: IUserDocument) => done(err, user))
+	User.findById(id, (err: MongooseError, user: IUserDocument) => done(err, user))
 })
 
 passport.use(
