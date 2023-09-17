@@ -38,9 +38,8 @@ if (require.main === module) {
 
 //Middleware
 const corsOptions = {
-	origin: process.env.URL,
-	credentials: true, //access-control-allow-credentials:true
-	optionSuccessStatus: 200,
+	origin: true,
+	credentials: true
 }
 app.use(cors(corsOptions))
 app.use(express.urlencoded({ extended: false }))

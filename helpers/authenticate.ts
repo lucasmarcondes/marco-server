@@ -19,7 +19,7 @@ passport.serializeUser<any, any>((req, user, done) => {
 })
 
 passport.deserializeUser((id, done) => {
-	User.findById(id, (err: MongooseError, user: IUserDocument) => done(err, user))
+	User.findById(id).then((user) => done(undefined, user))
 })
 
 passport.use(
